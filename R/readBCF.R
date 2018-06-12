@@ -8,7 +8,7 @@
 #'        samples and SNPs are columns. This is the opposite of a BCF.
 #'
 #' @export
-readBCF_GTandAD = function(path, region=NULL, rowsAreSamples=T, minMAF=0.0, maxMissing=1) {
+bcf_getGTandAD = function(path, region=NULL, rowsAreSamples=T, minMAF=0.0, maxMissing=1) {
   if (is.null(region)) region = "";
   ret = readBCFQuery_(path, region)
   nsnp = length(ret$POS)
@@ -43,17 +43,38 @@ readBCF_GTandAD = function(path, region=NULL, rowsAreSamples=T, minMAF=0.0, maxM
   ret
 }
 
-filter_GTandAD = function(GTAD, min.maf) {
-
-}
 
 #' Reads contig names and lengths from BCF file as a data frame.
 #'
 #' @param path Path to VCF or BCF file
 #'
 #' @export
-readBCF_Contigs = function(path) {
+bcf_getContigs = function(path) {
   ret = readBCFContigs_(path)
   # Adjust missing gentoypes: -1 is missing in C++ output
-  as.data.frame(ret)
+  as.data.frame(ret, stringsAsFactors=F)
+}
+
+
+#' Generate a list of regions which slide over the genome
+#'
+#' @param path Path to VCF or BCF file
+#' @param windowsize Size of each window, in bases
+#' @param slide Step size of each window, in bases
+#'
+#' @export
+bcf_getWindows = function(path, windowsize=1000, slide=1000) {
+  contigs = readBCF_Contigs(path)
+  res = list()
+  for (ctg in seq_len(nrow(contigs))) {
+    name = contigs$names[ctg]
+    ctglen = contigs$lengths[ctg]
+    windows = NULL
+    for (start in seq(1, ctglen - windowsize, slide)) {
+      stop = start + windowsize - 1
+      windows = c(windows, sprintf("%s:%d-%d", name, start, stop))
+    }
+    res[[name]]=windows
+  }
+  res
 }

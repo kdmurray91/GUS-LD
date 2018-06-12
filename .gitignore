@@ -2,3 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+*.so
+*.o
+*.bcf
+*.csi

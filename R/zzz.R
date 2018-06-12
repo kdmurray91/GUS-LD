@@ -4,7 +4,7 @@
 #'
 #' @docType GUSLD
 #' @author Kevin Murray
-#' @import Rcpp
+#' @import Rcpp boot doSNOW foreach
 #' @useDynLib GUSLD
 #' @name GUSLD
 NULL
